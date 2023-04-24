@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selenium-hub
+  labels:
+    type: selenium-hub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      type: selenium-hub
+  template:
+    metadata:
+      labels:
+        type: selenium-hub
+        name: selenium-hub
+    spec:
+      containers:
+        - name: selenium-hub
+          image: selenium/hub:3.141.59-20200515
+          ports:
+            - containerPort: 4444
+              name: seleniumhubport
+          resources:
+            limits:
+              cpu: "100m"
+              memory: "500Mi"
+
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: selenium-chrome-node
+  labels:
+    type: selenium-chrome-node
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      type: selenium-chrome-node
+  template:
+    metadata:
+      labels:
+        type: selenium-chrome-node
+        name: selenium-chrome-node
+    spec:
+      containers:
+        - name: selenium-chrome-node
+          image: selenium/node-chrome:3.141.59-20210929
+          env:
+            - name: HUB_HOST
+              value: "selenium-hub-host"
+
+---
+kind: Service
+apiVersion: v1
+spec:
+  type: LoadBalancer
+  selector:
+    name: selenium-hub
+  ports:
+    - port: 4444
+      targetPort: seleniumhubport
+      name: seleniumhub
+metadata:
+  name: selenium-hub-host
