@@ -23,7 +23,7 @@ spec:
               name: seleniumhubport
           resources:
             limits:
-              cpu: "100m"
+              cpu: "200m"
               memory: "500Mi"
           livenessProbe:
             initialDelaySeconds: 10
