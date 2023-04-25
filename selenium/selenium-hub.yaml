@@ -6,8 +6,8 @@ data:
   hubHost: "selenium-hub-host"
   browserScreenWidth: "1920"
   browserScreenHeight: "1080"
-  nodeMaxInstances: "2"
-  nodeMaxSessions: "2"
+  nodeMaxInstances: "1"
+  nodeMaxSessions: "1"
 
 ---
 
@@ -36,8 +36,8 @@ spec:
               name: seleniumhubport
           resources:
             limits:
-              cpu: "200m"
-              memory: "400Mi"
+              cpu: "250m"
+              memory: "550Mi"
           livenessProbe:
             initialDelaySeconds: 10
             timeoutSeconds: 10
@@ -69,7 +69,7 @@ spec:
           resources:
             limits:
               cpu: "200m"
-              memory: "400Mi"
+              memory: "500Mi"
           env:
             - name: HUB_HOST
               valueFrom:
