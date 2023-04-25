@@ -54,11 +54,6 @@ metadata:
     type: selenium-chrome-node
 spec:
   replicas: 2
-  strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 1
   selector:
     matchLabels:
       type: selenium-chrome-node
