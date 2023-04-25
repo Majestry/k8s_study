@@ -1,3 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: selenium-node-config
+data:
+  hubHost: "selenium-hub-host"
+  browserScreenWidth: "1920"
+  browserScreenHeight: "1080"
+
+---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -55,9 +66,23 @@ spec:
           image: selenium/node-chrome:3.141.59-20210929
           env:
             - name: HUB_HOST
-              value: "selenium-hub-host"
+              valueFrom:
+                configMapKeyRef:
+                  key: hubHost
+                  name: selenium-node-config
+            - name: SCREEN_WIDTH
+              valueFrom:
+                configMapKeyRef:
+                  key: browserScreenWidth
+                  name: selenium-node-config
+            - name: SCREEN_HEIGHT
+              valueFrom:
+                configMapKeyRef:
+                  key: browserScreenHeight
+                  name: selenium-node-config
 
 ---
+
 kind: Service
 apiVersion: v1
 spec:
