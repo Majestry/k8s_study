@@ -74,7 +74,7 @@ spec:
           resources:
             limits:
               cpu: "200m"
-              memory: "500Mi"
+              memory: "400Mi"
           env:
             - name: HUB_HOST
               valueFrom:
