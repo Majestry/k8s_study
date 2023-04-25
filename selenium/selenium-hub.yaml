@@ -6,6 +6,8 @@ data:
   hubHost: "selenium-hub-host"
   browserScreenWidth: "1920"
   browserScreenHeight: "1080"
+  nodeMaxInstances: "2"
+  nodeMaxSessions: "2"
 
 ---
 
@@ -52,6 +54,11 @@ metadata:
     type: selenium-chrome-node
 spec:
   replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
   selector:
     matchLabels:
       type: selenium-chrome-node
@@ -79,6 +86,16 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   key: browserScreenHeight
+                  name: selenium-node-config
+            - name: NODE_MAX_INSTANCES
+              valueFrom:
+                configMapKeyRef:
+                  key: nodeMaxInstances
+                  name: selenium-node-config
+            - name: NODE_MAX_SESSION
+              valueFrom:
+                configMapKeyRef:
+                  key: nodeMaxSessions
                   name: selenium-node-config
 
 ---
