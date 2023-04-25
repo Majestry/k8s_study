@@ -37,7 +37,7 @@ spec:
           resources:
             limits:
               cpu: "200m"
-              memory: "500Mi"
+              memory: "300Mi"
           livenessProbe:
             initialDelaySeconds: 10
             timeoutSeconds: 10
@@ -71,6 +71,10 @@ spec:
       containers:
         - name: selenium-chrome-node
           image: selenium/node-chrome:3.141.59-20210929
+          resources:
+            limits:
+              cpu: "200m"
+              memory: "500Mi"
           env:
             - name: HUB_HOST
               valueFrom:
