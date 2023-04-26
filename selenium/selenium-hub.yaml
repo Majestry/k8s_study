@@ -6,8 +6,8 @@ data:
   hubHost: "selenium-hub-host"
   browserScreenWidth: "1920"
   browserScreenHeight: "1080"
-  nodeMaxInstances: "2"
-  nodeMaxSessions: "2"
+  nodeMaxInstances: "3"
+  nodeMaxSessions: "3"
 
 ---
 
