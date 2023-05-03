@@ -5,7 +5,6 @@ metadata:
   labels:
     version: 2
 data:
-  HUB_HOST: "selenium-hub-host-internal"
   SCREEN_WIDTH: "1920"
   SCREEN_HEIGHT: "1080"
   NODE_MAX_INSTANCES: "3"
@@ -81,6 +80,9 @@ spec:
           envFrom:
             - configMapRef:
                 name: "selenium-node-config"
+          env:
+            - name: HUB_HOST
+              value: "${SELENIUM_HUB_INTERNAL_SERVICE_HOST}"
 
 ---
 
@@ -95,7 +97,7 @@ spec:
       targetPort: seleniumhubport
       name: seleniumhub
 metadata:
-  name: selenium-hub-host
+  name: selenium-hub-lb
 
 ---
 
@@ -110,6 +112,6 @@ spec:
       targetPort: seleniumhubport
       name: seleniumhub
 metadata:
-  name: selenium-hub-host-internal
+  name: selenium-hub-internal
   annotations:
     linkerd.io/inject: "enabled"
