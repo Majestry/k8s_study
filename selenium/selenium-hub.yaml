@@ -29,6 +29,7 @@ spec:
       labels:
         type: selenium-hub
         name: selenium-hub
+        linkerd.io/inject: enabled
     spec:
       containers:
         - name: selenium-hub
@@ -64,6 +65,7 @@ spec:
       labels:
         type: selenium-chrome-node
         name: selenium-chrome-node
+        linkerd.io/inject: enabled
     spec:
       containers:
         - name: selenium-chrome-node
