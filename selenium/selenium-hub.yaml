@@ -82,7 +82,7 @@ spec:
                 name: "selenium-node-config"
           env:
             - name: HUB_HOST
-              value: "${SELENIUM_HUB_INTERNAL_SERVICE_HOST}"
+              value: "selenium-hub-internal"
 
 ---
 
