@@ -2,12 +2,14 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: selenium-node-config
+  labels:
+    version: 1
 data:
-  hubHost: "selenium-hub-host"
-  browserScreenWidth: "1920"
-  browserScreenHeight: "1080"
-  nodeMaxInstances: "3"
-  nodeMaxSessions: "3"
+  HUB_HOST: "selenium-hub-host"
+  SCREEN_WIDTH: "1920"
+  SCREEN_HEIGHT: "1080"
+  NODE_MAX_INSTANCES: "3"
+  NODE_MAX_SESSION: "3"
 
 ---
 
@@ -70,32 +72,9 @@ spec:
             limits:
               cpu: "200m"
               memory: "500Mi"
-          env:
-            - name: HUB_HOST
-              valueFrom:
-                configMapKeyRef:
-                  key: hubHost
-                  name: selenium-node-config
-            - name: SCREEN_WIDTH
-              valueFrom:
-                configMapKeyRef:
-                  key: browserScreenWidth
-                  name: selenium-node-config
-            - name: SCREEN_HEIGHT
-              valueFrom:
-                configMapKeyRef:
-                  key: browserScreenHeight
-                  name: selenium-node-config
-            - name: NODE_MAX_INSTANCES
-              valueFrom:
-                configMapKeyRef:
-                  key: nodeMaxInstances
-                  name: selenium-node-config
-            - name: NODE_MAX_SESSION
-              valueFrom:
-                configMapKeyRef:
-                  key: nodeMaxSessions
-                  name: selenium-node-config
+          envFrom:
+            - configMapRef:
+                name: "selenium-node-config"
 
 ---
 
