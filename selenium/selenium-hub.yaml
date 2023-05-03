@@ -40,7 +40,7 @@ spec:
           resources:
             limits:
               cpu: "250m"
-              memory: "550Mi"
+              memory: "350Mi"
           livenessProbe:
             initialDelaySeconds: 10
             timeoutSeconds: 10
@@ -73,7 +73,7 @@ spec:
           resources:
             limits:
               cpu: "200m"
-              memory: "500Mi"
+              memory: "250Mi"
           envFrom:
             - configMapRef:
                 name: "selenium-node-config"
