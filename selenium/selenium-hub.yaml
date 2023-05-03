@@ -19,8 +19,6 @@ metadata:
   name: selenium-hub
   labels:
     type: selenium-hub
-  annotations:
-    linkerd.io/inject: "enabled"
 spec:
   replicas: 1
   selector:
@@ -31,6 +29,8 @@ spec:
       labels:
         type: selenium-hub
         name: selenium-hub
+      annotations:
+        linkerd.io/inject: "enabled"
     spec:
       containers:
         - name: selenium-hub
@@ -68,6 +68,8 @@ spec:
       labels:
         type: selenium-chrome-node
         name: selenium-chrome-node
+      annotations:
+        linkerd.io/inject: "enabled"
     spec:
       containers:
         - name: selenium-chrome-node
