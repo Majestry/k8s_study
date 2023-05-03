@@ -98,3 +98,5 @@ spec:
       name: seleniumhub
 metadata:
   name: selenium-hub-host
+  annotations:
+    linkerd.io/inject: "enabled"
