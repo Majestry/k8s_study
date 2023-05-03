@@ -3,9 +3,9 @@ kind: ConfigMap
 metadata:
   name: selenium-node-config
   labels:
-    version: 1
+    version: 2
 data:
-  HUB_HOST: "selenium-hub-host"
+  HUB_HOST: "selenium-hub-host-internal"
   SCREEN_WIDTH: "1920"
   SCREEN_HEIGHT: "1080"
   NODE_MAX_INSTANCES: "3"
@@ -31,8 +31,6 @@ spec:
       labels:
         type: selenium-hub
         name: selenium-hub
-      annotations:
-        linkerd.io/inject: "enabled"
     spec:
       containers:
         - name: selenium-hub
@@ -70,8 +68,6 @@ spec:
       labels:
         type: selenium-chrome-node
         name: selenium-chrome-node
-      annotations:
-        linkerd.io/inject: "enabled"
     spec:
       containers:
         - name: selenium-chrome-node
@@ -98,5 +94,20 @@ spec:
       name: seleniumhub
 metadata:
   name: selenium-hub-host
+
+---
+
+kind: Service
+apiVersion: v1
+spec:
+  type: ClusterIP
+  selector:
+    name: selenium-hub-internal
+  ports:
+    - port: 4444
+      targetPort: seleniumhubport
+      name: seleniumhub
+metadata:
+  name: selenium-hub-host-internal
   annotations:
     linkerd.io/inject: "enabled"
