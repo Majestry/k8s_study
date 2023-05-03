@@ -102,7 +102,7 @@ apiVersion: v1
 spec:
   type: ClusterIP
   selector:
-    name: selenium-hub-internal
+    name: selenium-hub
   ports:
     - port: 4444
       targetPort: seleniumhubport
