@@ -18,6 +18,7 @@ kind: Deployment
 metadata:
   name: selenium-hub
   labels:
+    linkerd.io/inject: enabled
     type: selenium-hub
 spec:
   replicas: 1
@@ -54,6 +55,7 @@ apiVersion: apps/v1
 metadata:
   name: selenium-chrome-node
   labels:
+    linkerd.io/inject: enabled
     type: selenium-chrome-node
 spec:
   replicas: 2
