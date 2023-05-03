@@ -20,7 +20,7 @@ metadata:
   labels:
     type: selenium-hub
   annotations:
-    linkerd.io/inject: enabled
+    linkerd.io/inject: "enabled"
 spec:
   replicas: 1
   selector:
@@ -55,7 +55,7 @@ apiVersion: apps/v1
 metadata:
   name: selenium-chrome-node
   annotations:
-    linkerd.io/inject: enabled
+    linkerd.io/inject: "enabled"
   labels:
     type: selenium-chrome-node
 spec:
