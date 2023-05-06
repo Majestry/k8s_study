@@ -23,6 +23,23 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
+  name: klipper-canary
+  namespace: klippertele
+  labels:
+    app: klipper
+spec:
+  type: ClusterIP
+  selector:
+    app: klipper
+  ports:
+    - port: 80
+      targetPort: klipper-port
+      protocol: TCP
+      name: klipper-svc
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: telegram
   namespace: klippertele
   labels:
@@ -54,21 +71,20 @@ spec:
       protocol: TCP
       name: telegram-svc
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
 metadata:
-  name: klipper-deployment
+  name: klipper-rollout
   namespace: klippertele
   labels:
     app: klipper
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: klipper
   template:
     metadata:
-      name: klipper
       labels:
         app: klipper
       annotations:
@@ -107,10 +123,19 @@ spec:
             periodSeconds: 10
       restartPolicy: Always
   strategy:
-    type: RollingUpdate
-    rollingUpdate:
-      maxUnavailable: 1
-      maxSurge: 0
+    canary:
+      maxSurge: "50%"
+      stableService: klipper
+      canaryService: klipper-canary
+      maxUnavailable: 0
+      steps:
+        - setWeight: 50
+        - pause:
+            duration: 24h
+        - setWeight: 100
+      dynamicStableScale: true
+      trafficRouting:
+        smi: {}
 
 ---
 apiVersion: v1
@@ -264,28 +289,6 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   namespace: klippertele
-  name: klipper-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: "majestry.example.com"
-      http:
-        paths:
-          - path: /klipper(/|$)(.*)
-            backend:
-              service:
-                name: klipper
-                port:
-                  name: klipper-svc
-            pathType: Prefix
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  namespace: klippertele
   name: telegram-ingress
   annotations:
     nginx.ingress.kubernetes.io/use-regex: "true"
@@ -312,7 +315,7 @@ metadata:
   labels:
     app: telegram
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: telegram
@@ -360,15 +363,12 @@ spec:
       restartPolicy: Always
   strategy:
     canary:
-      maxSurge: "34%"
+      maxSurge: "50%"
       stableService: telegram
       canaryService: telegram-canary
       maxUnavailable: 0
       steps:
-        - setWeight: 34
-        - pause:
-            duration: 24h
-        - setWeight: 67
+        - setWeight: 50
         - pause:
             duration: 24h
         - setWeight: 100
