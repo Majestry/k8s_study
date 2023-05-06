@@ -281,6 +281,21 @@ spec:
                 port:
                   name: klipper-svc
             pathType: Prefix
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: klippertele
+  name: telegram-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "majestry.example.com"
+      http:
+        paths:
           - path: /telegram(/|$)(.*)
             backend:
               service:
@@ -288,30 +303,6 @@ spec:
                 port:
                   name: telegram-svc
             pathType: Prefix
-#---
-#apiVersion: networking.k8s.io/v1
-#kind: Ingress
-#metadata:
-#  namespace: klippertele
-#  name: klipper-ingress-canary
-#  annotations:
-#    nginx.ingress.kubernetes.io/use-regex: "true"
-#    nginx.ingress.kubernetes.io/rewrite-target: /$2
-#    nginx.ingress.kubernetes.io/canary: "true"
-#    nginx.ingress.kubernetes.io/canary-weight: "30"
-#spec:
-#  ingressClassName: nginx
-#  rules:
-#    - host: "majestry.example.com"
-#      http:
-#        paths:
-#          - path: /telegram(/|$)(.*)
-#            backend:
-#              service:
-#                name: telegram-canary
-#                port:
-#                  name: telegram-svc
-#            pathType: Prefix
 ---
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
@@ -384,6 +375,6 @@ spec:
       dynamicStableScale: true
       trafficRouting:
         nginx:
-          stableIngress: klipper-ingress
+          stableIngress: telegram-ingress
 
 
