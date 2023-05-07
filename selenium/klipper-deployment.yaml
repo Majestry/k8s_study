@@ -4,6 +4,36 @@ metadata:
   name: klippertele
 ---
 apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telegram-env
+  namespace: klippertele
+data:
+  KLIPPER_HOSTNAME: "klipper"
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  namespace: klippertele
+  name: telegram-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: "majestry.example.com"
+      http:
+        paths:
+          - path: /telegram(/|$)(.*)
+            backend:
+              service:
+                name: telegram
+                port:
+                  name: telegram-svc
+            pathType: Prefix
+---
+apiVersion: v1
 kind: Service
 metadata:
   name: klipper
@@ -96,7 +126,9 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              cpu: "170m"
+              memory: "300Mi"
+            requests:
+              cpu: "150m"
               memory: "300Mi"
           ports:
             - containerPort: 80
@@ -138,175 +170,6 @@ spec:
         smi: {}
 
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: telegram-env
-  namespace: klippertele
-data:
-  KLIPPER_HOSTNAME: "klipper"
-#---
-#apiVersion: apps/v1
-#kind: Deployment
-#metadata:
-#  name: telegram-deployment
-#  namespace: klippertele
-#  labels:
-#    app: telegram
-#spec:
-#  replicas: 3
-#  selector:
-#    matchLabels:
-#      app: telegram
-#  template:
-#    metadata:
-#      name: telegram
-#      labels:
-#        app: telegram
-#      annotations:
-#        linkerd.io/inject: "enabled"
-#    spec:
-#      containers:
-#        - name: telegram
-#          image: majestry/telegram:latest
-#          imagePullPolicy: Always
-#          envFrom:
-#            - configMapRef:
-#                name: telegram-env
-#          resources:
-#            limits:
-#              cpu: "300m"
-#              memory: "300Mi"
-#          ports:
-#            - containerPort: 8080
-#              name: telegram-port
-#          readinessProbe:
-#            initialDelaySeconds: 20
-#            timeoutSeconds: 10
-#            periodSeconds: 20
-#            httpGet:
-#              port: 8080
-#              path: /actuator/health
-#          livenessProbe:
-#            initialDelaySeconds: 20
-#            timeoutSeconds: 10
-#            periodSeconds: 20
-#            httpGet:
-#              port: 8080
-#              path: /actuator/health
-#          startupProbe:
-#            httpGet:
-#              path: /actuator/health
-#              port: 8080
-#            failureThreshold: 10
-#            periodSeconds: 10
-#      restartPolicy: Always
-#  strategy:
-#    type: RollingUpdate
-#    rollingUpdate:
-#      maxUnavailable: 1
-#      maxSurge: 1
-##---
-##apiVersion: apps/v1
-##kind: Deployment
-##metadata:
-##  name: telegram-canary-deployment
-##  namespace: klippertele
-##  labels:
-##    app: telegram
-##spec:
-##  replicas: 1
-##  selector:
-##    matchLabels:
-##      app: telegram-canary
-##  template:
-##    metadata:
-##      name: telegram-canary
-##      labels:
-##        app: telegram-canary
-##      annotations:
-##        linkerd.io/inject: "enabled"
-##    spec:
-##      containers:
-##        - name: telegram-canary
-##          image: majestry/telegram:0.4.1
-##          imagePullPolicy: Always
-##          envFrom:
-##            - configMapRef:
-##                name: telegram-env
-##          resources:
-##            limits:
-##              cpu: "250m"
-##              memory: "300Mi"
-##          ports:
-##            - containerPort: 8080
-##              name: telegram-port
-##          readinessProbe:
-##            initialDelaySeconds: 20
-##            timeoutSeconds: 10
-##            periodSeconds: 20
-##            httpGet:
-##              port: 8080
-##              path: /actuator/health
-##          livenessProbe:
-##            initialDelaySeconds: 20
-##            timeoutSeconds: 10
-##            periodSeconds: 20
-##            httpGet:
-##              port: 8080
-##              path: /actuator/health
-##          startupProbe:
-##            httpGet:
-##              path: /actuator/health
-##              port: 8080
-##            failureThreshold: 10
-##            periodSeconds: 10
-##      restartPolicy: Always
-##  strategy:
-##    type: RollingUpdate
-##    rollingUpdate:
-##      maxUnavailable: 1
-##      maxSurge: 1
-##---
-##apiVersion: v1
-##kind: Service
-##metadata:
-##  name: telegram-canary
-##  namespace: klippertele
-##  labels:
-##    app: telegram-canary
-##spec:
-##  type: ClusterIP
-##  selector:
-##    app: telegram-canary
-##  ports:
-##    - port: 80
-##      targetPort: telegram-port
-##      protocol: TCP
-##      name: telegram-svc
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  namespace: klippertele
-  name: telegram-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: "majestry.example.com"
-      http:
-        paths:
-          - path: /telegram(/|$)(.*)
-            backend:
-              service:
-                name: telegram
-                port:
-                  name: telegram-svc
-            pathType: Prefix
----
 apiVersion: argoproj.io/v1alpha1
 kind: Rollout
 metadata:
@@ -335,6 +198,8 @@ spec:
                 name: telegram-env
           resources:
             limits:
+              memory: "300Mi"
+            requests:
               cpu: "125m"
               memory: "300Mi"
           ports:
@@ -376,5 +241,7 @@ spec:
       trafficRouting:
         nginx:
           stableIngress: telegram-ingress
+
+
 
 
