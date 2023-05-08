@@ -122,7 +122,7 @@ spec:
     spec:
       containers:
         - name: klipper
-          image: majestry/klipper:0.4.1
+          image: majestry/klipper:latest
           imagePullPolicy: Always
           resources:
             limits:
@@ -163,7 +163,7 @@ spec:
       steps:
         - setWeight: 50
         - pause:
-            duration: 24h
+            duration: 5m
         - setWeight: 100
       dynamicStableScale: true
       trafficRouting:
@@ -191,7 +191,7 @@ spec:
     spec:
       containers:
         - name: telegram
-          image: majestry/telegram:0.4.1
+          image: majestry/telegram:latest
           imagePullPolicy: Always
           envFrom:
             - configMapRef:
@@ -235,7 +235,7 @@ spec:
       steps:
         - setWeight: 50
         - pause:
-            duration: 24h
+            duration: 5h
         - setWeight: 100
       dynamicStableScale: true
       trafficRouting:
