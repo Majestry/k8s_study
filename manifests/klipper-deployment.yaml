@@ -1,59 +1,12 @@
-apiVersion: v1
+piVersion: v1
 kind: Namespace
 metadata:
   name: klippertele
 ---
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: telegram-env
-  namespace: klippertele
-data:
-  KLIPPER_HOSTNAME: "klipper"
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  namespace: klippertele
-  name: telegram-ingress
-  annotations:
-    nginx.ingress.kubernetes.io/use-regex: "true"
-    nginx.ingress.kubernetes.io/rewrite-target: /$2
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: "majestry.example.com"
-      http:
-        paths:
-          - path: /telegram(/|$)(.*)
-            backend:
-              service:
-                name: telegram
-                port:
-                  name: telegram-svc
-            pathType: Prefix
----
-apiVersion: v1
 kind: Service
 metadata:
   name: klipper
-  namespace: klippertele
-  labels:
-    app: klipper
-spec:
-  type: ClusterIP
-  selector:
-    app: klipper
-  ports:
-    - port: 80
-      targetPort: klipper-port
-      protocol: TCP
-      name: klipper-svc
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: klipper-canary
   namespace: klippertele
   labels:
     app: klipper
@@ -84,37 +37,21 @@ spec:
       protocol: TCP
       name: telegram-svc
 ---
-apiVersion: v1
-kind: Service
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: telegram-canary
-  namespace: klippertele
-  labels:
-    app: telegram
-spec:
-  type: ClusterIP
-  selector:
-    app: telegram
-  ports:
-    - port: 80
-      targetPort: telegram-port
-      protocol: TCP
-      name: telegram-svc
----
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
-metadata:
-  name: klipper-rollout
+  name: klipper-deployment
   namespace: klippertele
   labels:
     app: klipper
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: klipper
   template:
     metadata:
+      name: klipper
       labels:
         app: klipper
       annotations:
@@ -126,9 +63,7 @@ spec:
           imagePullPolicy: Always
           resources:
             limits:
-              memory: "300Mi"
-            requests:
-              cpu: "150m"
+              cpu: "170m"
               memory: "300Mi"
           ports:
             - containerPort: 80
@@ -155,35 +90,35 @@ spec:
             periodSeconds: 10
       restartPolicy: Always
   strategy:
-    canary:
-      maxSurge: "50%"
-      stableService: klipper
-      canaryService: klipper-canary
-      maxUnavailable: 0
-      steps:
-        - setWeight: 50
-        - pause:
-            duration: 5m
-        - setWeight: 100
-      dynamicStableScale: true
-      trafficRouting:
-        smi: {}
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 0
 
 ---
-apiVersion: argoproj.io/v1alpha1
-kind: Rollout
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: telegram-rollout
+  name: telegram-env
+  namespace: klippertele
+data:
+  KLIPPER_HOSTNAME: "klipper"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: telegram-deployment
   namespace: klippertele
   labels:
     app: telegram
 spec:
-  replicas: 2
+  replicas: 3
   selector:
     matchLabels:
       app: telegram
   template:
     metadata:
+      name: telegram
       labels:
         app: telegram
       annotations:
@@ -198,9 +133,7 @@ spec:
                 name: telegram-env
           resources:
             limits:
-              memory: "300Mi"
-            requests:
-              cpu: "125m"
+              cpu: "300m"
               memory: "300Mi"
           ports:
             - containerPort: 8080
@@ -223,25 +156,11 @@ spec:
             httpGet:
               path: /actuator/health
               port: 8080
-            failureThreshold: 15
+            failureThreshold: 10
             periodSeconds: 10
       restartPolicy: Always
   strategy:
-    canary:
-      maxSurge: "50%"
-      stableService: telegram
-      canaryService: telegram-canary
-      maxUnavailable: 0
-      steps:
-        - setWeight: 50
-        - pause:
-            duration: 5h
-        - setWeight: 100
-      dynamicStableScale: true
-      trafficRouting:
-        nginx:
-          stableIngress: telegram-ingress
-
-
-
-
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
